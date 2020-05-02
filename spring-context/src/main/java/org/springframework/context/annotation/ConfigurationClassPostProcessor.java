@@ -330,7 +330,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
-			// 扫描包
+			// 扫描包(在这个方法中会将扫描出来的类添加到DefaultListableBeanFactory中的beanDefinitionMap中)
 			parser.parse(candidates);
 			parser.validate();
 
@@ -344,7 +344,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
 
-			// 将扫描出来的bean对应的BeanDefinition添加到factory的map中
+			// 对每一个扫描出来的类是否有引入其他的类进行处理(例如添加了@Import注解，类里面有@Bean的方法)
 			// 需要注意的是，这里扫描出来的bean当中可能包含了特殊类，例如
 			// ImportBeanDefinitionRegistrar也在这个方法中处理
 			this.reader.loadBeanDefinitions(configClasses);

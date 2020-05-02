@@ -294,11 +294,11 @@ class ConfigurationClassParser {
 			for (AnnotationAttributes componentScan : componentScans) {
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
 				// 扫描普通类
-				// 这里扫描出来所有的@Component
+				// 这里扫描出来所有添加了@Component注解的类
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
-				// 检查扫描出来的类当中是否还有configuration
+				// 检查扫描出来的类当中是否还有配置类，如果有就会递归去扫描，直到扫描出来所有的配置类
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
 					BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
 					if (bdCand == null) {
@@ -311,7 +311,8 @@ class ConfigurationClassParser {
 			}
 		}
 
-		// 以上代码主要是扫描普通类，即加了@Component的类，并将处理完成后的BeanDefinition放置到map中
+		// --- 以上代码主要是扫描普通类，即加了@Component的类，并将处理完成后的BeanDefinition放置到map中 ---
+
 
 		/**
 		 * 说明
