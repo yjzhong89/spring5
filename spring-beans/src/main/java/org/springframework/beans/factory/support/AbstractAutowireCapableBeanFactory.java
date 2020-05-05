@@ -582,7 +582,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 1. 如果存在工厂方法则使用工厂方法进行初始化
 			// 2. 一个类有多个构造函数，每个构造函数都有不同的参数，所以需要根据参数锁定构造函数并进行初始化
 			// 3. 如果既不存在工厂方法也不存在带有参数的构造函数，则使用默认的构造函数进行bean的实例化
-			// 如果bean的配置心有中有lookup-method和replace-method，则会使用CGLIB增强bean实例
+			// 如果bean的配置项中有lookup-method和replace-method，则会使用CGLIB增强bean实例
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		final Object bean = instanceWrapper.getWrappedInstance();

@@ -131,15 +131,17 @@ class ConstructorResolver {
 		// argsToUse可以使用两种办法设置
 		// 第一种是通过beanDefinition设置
 		// 第二种是通过xml设置
+		// 如果构造参数不为空就直接使用
 		if (explicitArgs != null) {
 			argsToUse = explicitArgs;
 		}
 		else {
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {
-				// 获取已经解析的构造方法
+				// 获取已经缓存的构造方法
 				// 一般不会有，因为构造方法一般会提供一个，除非有多个
 				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
+				// 如果缓存不为空，并且构造参数已经解析
 				if (constructorToUse != null && mbd.constructorArgumentsResolved) {
 					// Found a cached constructor...
 					argsToUse = mbd.resolvedConstructorArguments;
@@ -148,11 +150,14 @@ class ConstructorResolver {
 					}
 				}
 			}
+
+			// 如果缓存的参数不是空，就进行解析，解析时会对argsToResolve中的每个的类型进行转化
 			if (argsToResolve != null) {
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve, true);
 			}
 		}
 
+		// 如果缓存的构造器不存在，就说明没有bean进行过解析，需要去关联对应的bean的构造器
 		if (constructorToUse == null || argsToUse == null) {
 			// Take specified constructors, if any.
 			Constructor<?>[] candidates = chosenCtors;
@@ -191,7 +196,7 @@ class ConstructorResolver {
 			ConstructorArgumentValues resolvedValues = null;
 
 			// 定义最小参数个数，即构造方法最少需要几个参数
-			// 如果如果为构造方法的参数列表制定了具体的值，那么这些值的个数就是构造方法参数的个数
+			// 如果为构造方法的参数列表制定了具体的值，那么这些值的个数就是构造方法参数的个数
 			int minNrOfArgs;
 			if (explicitArgs != null) {
 				minNrOfArgs = explicitArgs.length;
@@ -234,7 +239,7 @@ class ConstructorResolver {
 				Class<?>[] paramTypes = candidate.getParameterTypes();
 				/**
 				 * constructorToUse主要是用来存放已经解析过并且在使用的构造方法
-				 * 只有在等于空的时候，才有继续的意义，因为西面如果解析到了一个符合的构造方法，就会赋值给这个变量。
+				 * 只有在等于空的时候，才有继续的意义，因为前面如果解析到了一个符合的构造方法，就会赋值给这个变量。
 				 * 如果这个变量不等于null时就不需要进行解析，即已经找到了一个合适的构造方法，可以直接使用
 				 *
 				 * argsToUse.length > paramTypes.length
@@ -292,6 +297,9 @@ class ConstructorResolver {
 				 *  typeDiffWeight，即差异量，表示argsHolder.arguments和paramTypes之间的差异
 				 * 	每个参数值的类型与构造方法参数列表的类型直接的差异
 				 * 	通过这个差异量来衡量或者确定一个合适的构造方法
+				 *
+				 * 	如果是宽松的构造策略，则对比spring构造的参数数组的类型和获取到的构造器参数的参数类型进行对比，返回不同的个数
+				 *  如果是严格的构造策略，则检查能否将构造的参数数组赋值到构造器参数的参数列表中
 				 */
 				int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
 						argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
