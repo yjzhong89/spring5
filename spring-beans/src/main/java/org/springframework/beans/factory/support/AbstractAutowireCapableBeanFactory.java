@@ -621,7 +621,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 第四次执行spring的后置处理器
 
 			// 为了避免后期循环依赖，可以在bean初始化完成前将创建实例的ObjectFactory加入工厂
-			// 对bean再一次依赖引用，主要应用SmartInstantiationAware BeanPostProcessor
+			// 对bean再一次依赖引用，主要应用SmartInstantiationAwareBeanPostProcessor
 			// AOP就是在这里将advice动态织入bean中，若没有则直接返回bean，不做任何处理
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
